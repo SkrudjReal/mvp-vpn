@@ -32,7 +32,6 @@ final branchesScope = <String, FocusScopeNode>{
   'home': FocusScopeNode(),
   'profiles': FocusScopeNode(),
   'settings': FocusScopeNode(),
-  'logs': FocusScopeNode(),
   'about': FocusScopeNode(),
 };
 
@@ -43,11 +42,11 @@ final loadingConfig = RoutingConfig(
 
 String getNameOfBranch(bool isMobileBreakpoint, bool showProfilesAction, int index) => isMobileBreakpoint
     ? ['home', 'settings'][index]
-    : ['home', if (showProfilesAction) 'profiles', 'settings', 'logs', 'about'][index];
+    : ['home', if (showProfilesAction) 'profiles', 'settings', 'about'][index];
 
 int getIndexOfBranch(bool isMobileBreakpoint, bool showProfilesAction, String name) => isMobileBreakpoint
     ? ['home', 'settings'].indexOf(name)
-    : ['home', if (showProfilesAction) 'profiles', 'settings', 'logs', 'about'].indexOf(name);
+    : ['home', if (showProfilesAction) 'profiles', 'settings', 'about'].indexOf(name);
 
 @Riverpod(keepAlive: true)
 class RoutingConfigNotifier extends _$RoutingConfigNotifier {
@@ -79,10 +78,11 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
         if (!introCompleted) {
           return url != null ? '/intro?url=$url' : '/intro';
         } else if (isIntro) {
-          if (url != null)
+          if (url != null) {
             WidgetsBinding.instance.addPostFrameCallback(
               (_) => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url),
             );
+          }
           return '/home';
         } else if (url != null) {
           WidgetsBinding.instance.addPostFrameCallback(
@@ -164,19 +164,19 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                   routes: <GoRoute>[
                     GoRoute(
                       name: 'general',
-                      path: '/general',
+                      path: 'general',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const GeneralPage()),
                     ),
                     GoRoute(
                       name: 'routeOptions',
-                      path: '/route-options',
+                      path: 'route-options',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const RouteOptionsPage()),
                       routes: <GoRoute>[
                         GoRoute(
                           name: 'perAppProxy',
-                          path: '/per-app-proxy',
+                          path: 'per-app-proxy',
                           pageBuilder: (_, state) =>
                               customTransition(TransitionType.slide, state.pageKey, const PerAppProxyPage()),
                         ),
@@ -184,56 +184,40 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                     ),
                     GoRoute(
                       name: 'dnsOptions',
-                      path: '/dns-options',
+                      path: 'dns-options',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const DnsOptionsPage()),
                     ),
                     GoRoute(
                       name: 'inboundOptions',
-                      path: '/inbound-options',
+                      path: 'inbound-options',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const InboundOptionsPage()),
                     ),
                     GoRoute(
                       name: 'tlsTricks',
-                      path: '/tls-tricks',
+                      path: 'tls-tricks',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const TlsTricksPage()),
                     ),
                     GoRoute(
                       name: 'warpOptions',
-                      path: '/warp-options',
+                      path: 'warp-options',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const WarpOptionsPage()),
                     ),
-                    if (isMobileBreakpoint) ...[
-                      GoRoute(
-                        name: 'logs',
-                        path: '/logs',
-                        pageBuilder: (_, state) =>
-                            customTransition(TransitionType.slide, state.pageKey, const LogsPage()),
-                      ),
+                    if (isMobileBreakpoint)
                       GoRoute(
                         name: 'about',
                         path: '/about',
                         pageBuilder: (_, state) =>
                             customTransition(TransitionType.slide, state.pageKey, const AboutPage()),
                       ),
-                    ],
                   ],
                 ),
               ],
             ),
-            if (!isMobileBreakpoint) ...[
-              StatefulShellBranch(
-                routes: <GoRoute>[
-                  GoRoute(
-                    name: 'logs',
-                    path: '/logs',
-                    builder: (_, _) => FocusScope(node: branchesScope['logs'], child: const LogsPage()),
-                  ),
-                ],
-              ),
+            if (!isMobileBreakpoint)
               StatefulShellBranch(
                 routes: <GoRoute>[
                   GoRoute(
@@ -243,9 +227,9 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                   ),
                 ],
               ),
-            ],
           ],
         ),
+        GoRoute(name: 'logs', path: '/logs', builder: (_, _) => const LogsPage()),
         GoRoute(name: 'intro', path: '/intro', builder: (_, _) => const IntroPage()),
       ],
     );

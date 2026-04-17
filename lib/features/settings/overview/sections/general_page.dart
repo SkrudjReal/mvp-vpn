@@ -1,4 +1,3 @@
-import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/haptic/haptic_service.dart';
 import 'package:hiddify/core/localization/translations.dart';
@@ -11,7 +10,6 @@ import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:humanizer/humanizer.dart';
 
 class GeneralPage extends HookConsumerWidget {
   const GeneralPage({super.key});
@@ -76,10 +74,11 @@ class GeneralPage extends HookConsumerWidget {
             secondary: const Icon(Icons.bug_report_rounded),
             value: ref.watch(debugModeNotifierProvider),
             onChanged: (value) async {
-              if (value)
+              if (value) {
                 await ref
                     .read(dialogNotifierProvider.notifier)
                     .showOk(t.pages.settings.general.debugMode, t.pages.settings.general.debugModeMsg);
+              }
               await ref.read(debugModeNotifierProvider.notifier).update(value);
             },
           ),
@@ -90,32 +89,6 @@ class GeneralPage extends HookConsumerWidget {
             title: t.pages.settings.general.logLevel,
             icon: Icons.description_rounded,
             presentChoice: (value) => value.name.toUpperCase(),
-          ),
-          ValuePreferenceWidget(
-            value: ref.watch(ConfigOptions.connectionTestUrl),
-            preferences: ref.watch(ConfigOptions.connectionTestUrl.notifier),
-            title: t.pages.settings.general.connectionTestUrl,
-            icon: Icons.link_rounded,
-          ),
-          ListTile(
-            title: Text(t.pages.settings.general.urlTestInterval),
-            subtitle: Text(ref.watch(ConfigOptions.urlTestInterval).toApproximateTime(isRelativeToNow: false)),
-            leading: const Icon(Icons.timer_rounded),
-            onTap: () async => await ref
-                .read(dialogNotifierProvider.notifier)
-                .showSettingSlider(
-                  title: t.pages.settings.general.urlTestInterval,
-                  initialValue: ref.watch(ConfigOptions.urlTestInterval).inMinutes.coerceIn(0, 60).toDouble(),
-                  onReset: ref.read(ConfigOptions.urlTestInterval.notifier).reset,
-                  min: 1,
-                  max: 60,
-                  divisions: 60,
-                  labelGen: (value) => Duration(minutes: value.toInt()).toApproximateTime(isRelativeToNow: false),
-                )
-                .then((value) async {
-                  if (value == null) return;
-                  await ref.read(ConfigOptions.urlTestInterval.notifier).update(Duration(minutes: value.toInt()));
-                }),
           ),
           ValuePreferenceWidget(
             value: ref.watch(ConfigOptions.clashApiPort),

@@ -40,11 +40,6 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
           const Gap(8),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async => await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest("select"),
-        tooltip: t.pages.proxies.testDelay,
-        child: const Icon(FluentIcons.flash_24_filled),
-      ),
       body: proxies.when(
         data: (group) => group != null
             ? LayoutBuilder(
