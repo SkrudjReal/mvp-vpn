@@ -3,13 +3,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/failures.dart';
-import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
+import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
-import 'package:hiddify/core/widget/app_logo.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
+import 'package:hiddify/core/widget/app_logo.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -124,8 +122,19 @@ class ConnectionButton extends HookConsumerWidget {
         },
         AsyncData(value: Disconnected()) || AsyncError() => () async {
           if (ref.read(activeProfileProvider).valueOrNull == null) {
-            await ref.read(dialogNotifierProvider.notifier).showNoActiveProfile();
-            ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
+            final selectedCountry = await ref
+                .read(dialogNotifierProvider.notifier)
+                .showSettingPicker<Region>(
+                  title: t.pages.proxies.ipInfo.country,
+                  showFlag: true,
+                  selected: ref.read(ConfigOptions.region),
+                  options: Region.availableCountries,
+                  getTitle: (region) => region.present(t),
+                );
+            if (selectedCountry != null) {
+              await ref.read(ConfigOptions.region.notifier).update(selectedCountry);
+            }
+            return;
           }
           if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
             return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
@@ -161,10 +170,6 @@ class ConnectionButton extends HookConsumerWidget {
       },
       image: switch (connectionStatus) {
         AsyncData(value: Connected()) when requiresReconnect == true => Assets.images.disconnectNorouz,
-        AsyncData(value: Connected()) => Assets.images.connectNorouz,
-        AsyncData(value: _) => Assets.images.disconnectNorouz,
-        _ => Assets.images.disconnectNorouz,
-        AsyncData(value: Disconnected()) || AsyncError() => Assets.images.disconnectNorouz,
         AsyncData(value: Connected()) => Assets.images.connectNorouz,
         _ => Assets.images.disconnectNorouz,
       },

@@ -3,14 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
-import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -42,7 +39,9 @@ class ProfileTile extends HookConsumerWidget {
         CustomToast.error(t.presentShortError(err)).show(context);
       },
       initialOnSuccess: () {
-        if (context.mounted && context.canPop()) context.pop();
+        if (context.mounted && Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       },
     );
 
@@ -51,7 +50,7 @@ class ProfileTile extends HookConsumerWidget {
       _ => null,
     };
 
-    final showActionButton = profile is RemoteProfileEntity || !isMain;
+    final showActionButton = !isMain && profile is RemoteProfileEntity;
 
     // final effectiveMargin = isMain ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8) : const EdgeInsets.only(left: 12, right: 12, bottom: 12);
     // final double effectiveElevation = profile.active ? 12 : 4;
@@ -83,36 +82,23 @@ class ProfileTile extends HookConsumerWidget {
               ],
               Expanded(
                 child: Semantics(
-                  button: true,
+                  button: !isMain,
                   sortKey: isMain ? const OrdinalSortKey(0) : null,
                   focused: isMain,
                   liveRegion: isMain,
-                  namesRoute: isMain,
-                  label: isMain ? t.pages.profiles.viewAllProfiles : null,
+                  namesRoute: false,
                   child: InkWell(
                     borderRadius: showActionButton
                         ? ProfileTileConst.endBorderRadius(Directionality.of(context))
                         : ProfileTileConst.cardBorderRadius,
-                    onTap: () {
-                      if (isMain) {
-                        if (Breakpoint(context).isMobile()) {
-                          ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
-                        } else {
-                          context.goNamed('profiles');
-                        }
-                      } else {
-                        if (selectActiveMutation.state.isInProgress) return;
-                        // if (profile.active) return;
-                        selectActiveMutation.setFuture(
-                          ref.read(profilesNotifierProvider.notifier).selectActiveProfile(profile.id),
-                        );
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.goNamed('home');
-                        }
-                      }
-                    },
+                    onTap: isMain
+                        ? null
+                        : () {
+                            if (selectActiveMutation.state.isInProgress) return;
+                            selectActiveMutation.setFuture(
+                              ref.read(profilesNotifierProvider.notifier).selectActiveProfile(profile.id),
+                            );
+                          },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       child: Column(
@@ -123,27 +109,14 @@ class ProfileTile extends HookConsumerWidget {
                           if (isMain)
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Material(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.transparent,
-                                clipBehavior: Clip.antiAlias,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        profile.name,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: theme.textTheme.titleMedium?.copyWith(
-                                          fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
-                                        ),
-                                        semanticsLabel: t.pages.profiles.activeProfileName(name: profile.name),
-                                      ),
-                                    ),
-                                    const Icon(Icons.arrow_drop_down_rounded),
-                                  ],
+                              child: Text(
+                                profile.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
                                 ),
+                                semanticsLabel: t.pages.profiles.activeProfileName(name: profile.name),
                               ),
                             )
                           else
@@ -284,15 +257,6 @@ class ProfileActionsMenu extends HookConsumerWidget {
           ),
         ],
       ),
-      AdaptiveMenuItem(
-        icon: Icons.edit_rounded,
-        title: t.common.edit,
-        onTap: () {
-          if (Breakpoint(context).isMobile()) context.pop();
-          context.goNamed('profileDetails', pathParameters: {'id': profile.id});
-        },
-      ),
-      // if (!profile.active)
       AdaptiveMenuItem(
         icon: Icons.delete_outline_rounded,
         title: t.common.delete,

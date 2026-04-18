@@ -1,6 +1,7 @@
 import 'package:hiddify/core/localization/translations.dart';
 
 enum Region {
+  nl,
   ir,
   cn,
   ru,
@@ -10,7 +11,10 @@ enum Region {
   br,
   other;
 
+  static const availableCountries = [nl];
+
   String present(TranslationsEn t) => switch (this) {
+    nl => 'Netherlands (nl)',
     ir => t.pages.settings.routing.regions.ir,
     cn => t.pages.settings.routing.regions.cn,
     ru => t.pages.settings.routing.regions.ru,

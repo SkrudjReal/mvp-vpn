@@ -79,7 +79,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                       final width = constraints.maxWidth > IntroConst.maxwidth
                           ? IntroConst.maxwidth
                           : constraints.maxWidth;
-                      final size = width * 0.4;
+                      final size = width * 0.2;
                       return AppLogo(width: size, height: size);
                     },
                   ),
