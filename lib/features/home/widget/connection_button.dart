@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -187,13 +189,18 @@ class ConnectionButton extends HookConsumerWidget {
         AsyncData(value: _) => true,
         _ => false,
       },
+      connected: connectionStatus.value == const Connected(),
+      busy: switch (connectionStatus.value) {
+        Connecting() || Disconnecting() => true,
+        _ => false,
+      },
       useImage: today.day >= 19 && today.day <= 23 && today.month == 3,
       secureLabel: secureLabel,
     );
   }
 }
 
-class _ConnectionButton extends StatelessWidget {
+class _ConnectionButton extends StatefulWidget {
   const _ConnectionButton({
     required this.onTap,
     required this.enabled,
@@ -203,6 +210,8 @@ class _ConnectionButton extends StatelessWidget {
     required this.useImage,
     required this.newButtonColor,
     required this.animated,
+    required this.connected,
+    required this.busy,
     required this.secureLabel,
   });
 
@@ -217,68 +226,179 @@ class _ConnectionButton extends StatelessWidget {
   final Color newButtonColor;
 
   final bool animated;
+  final bool connected;
+  final bool busy;
+
+  @override
+  State<_ConnectionButton> createState() => _ConnectionButtonState();
+}
+
+class _ConnectionButtonState extends State<_ConnectionButton> with TickerProviderStateMixin {
+  late final AnimationController _sparkleController;
+  late final AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _sparkleController = AnimationController(vsync: this, duration: const Duration(milliseconds: 760));
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1700),
+      lowerBound: .94,
+      upperBound: 1.04,
+    );
+    _syncPulse();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ConnectionButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.connected != widget.connected || oldWidget.busy != widget.busy) {
+      _syncPulse();
+    }
+  }
+
+  void _syncPulse() {
+    if (widget.connected || widget.busy) {
+      _pulseController.repeat(reverse: true);
+    } else {
+      _pulseController
+        ..stop()
+        ..value = 1;
+    }
+  }
+
+  @override
+  void dispose() {
+    _sparkleController.dispose();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    _sparkleController.forward(from: 0);
+    widget.onTap();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final neonColor = widget.connected
+        ? const Color(0xFF4DD8FF)
+        : widget.busy
+            ? const Color(0xFF7DBBFF)
+            : theme.colorScheme.primary;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // CircleDesignWidget(newButtonColor: newButtonColor, onTap: onTap, animated: animated),
-        Semantics(
-          button: true,
-          enabled: enabled,
-          label: label,
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(blurRadius: 16, color: buttonColor.withValues(alpha: .5))],
-            ),
-            width: 148,
-            height: 148,
-            child: Material(
-              key: const ValueKey("home_connection_button"),
-              shape: const CircleBorder(),
-              color: Colors.white,
-              child: InkWell(
-                focusColor: Colors.grey,
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.all(36),
-                  child: TweenAnimationBuilder(
-                    tween: ColorTween(end: buttonColor),
-                    duration: const Duration(milliseconds: 250),
-                    builder: (context, value, child) {
-                      if (useImage) {
-                        return image.image();
-                      } else {
-                        return AppLogo(colorFilter: ColorFilter.mode(value!, BlendMode.srcIn));
-                      }
-                    },
+        SizedBox(
+          width: 232,
+          height: 232,
+          child: AnimatedBuilder(
+            animation: Listenable.merge([_sparkleController, _pulseController]),
+            builder: (context, child) {
+              final pulse = widget.connected || widget.busy ? _pulseController.value : 1.0;
+
+              return Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Transform.scale(
+                    scale: pulse,
+                    child: Container(
+                      width: 188,
+                      height: 188,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            neonColor.withValues(alpha: 0.24),
+                            neonColor.withValues(alpha: 0.10),
+                            Colors.transparent,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: neonColor.withValues(alpha: widget.connected ? 0.28 : 0.18),
+                            blurRadius: widget.connected ? 44 : 28,
+                            spreadRadius: widget.connected ? 2 : -2,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ).animate(target: enabled ? 0 : 1).blurXY(end: 1),
-          ).animate(target: enabled ? 0 : 1).scaleXY(end: .88, curve: Curves.easeIn),
+                  Container(
+                    width: 170,
+                    height: 170,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: neonColor.withValues(alpha: 0.26)),
+                    ),
+                  ),
+                  _SparkleBurst(
+                    progress: _sparkleController.value,
+                    color: neonColor,
+                  ),
+                  Semantics(
+                    button: true,
+                    enabled: widget.enabled,
+                    label: widget.label,
+                    child: Container(
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(blurRadius: 18, color: neonColor.withValues(alpha: .32)),
+                        ],
+                      ),
+                      width: 148,
+                      height: 148,
+                      child: Material(
+                        key: const ValueKey("home_connection_button"),
+                        shape: const CircleBorder(),
+                        color: Colors.white,
+                        child: InkWell(
+                          focusColor: Colors.grey,
+                          onTap: _handleTap,
+                          child: Padding(
+                            padding: const EdgeInsets.all(36),
+                            child: TweenAnimationBuilder(
+                              tween: ColorTween(end: widget.buttonColor),
+                              duration: const Duration(milliseconds: 250),
+                              builder: (context, value, child) {
+                                if (widget.useImage) {
+                                  return widget.image.image();
+                                } else {
+                                  return AppLogo(colorFilter: ColorFilter.mode(value!, BlendMode.srcIn));
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ).animate(target: widget.enabled ? 0 : 1).blurXY(end: 1),
+                    ).animate(target: widget.enabled ? 0 : 1).scaleXY(end: .88, curve: Curves.easeIn),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
         const Gap(16),
         ExcludeSemantics(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedText(label, style: Theme.of(context).textTheme.titleMedium),
-              if (secureLabel.isNotEmpty) ...[
+              AnimatedText(widget.label, style: theme.textTheme.titleMedium),
+              if (widget.secureLabel.isNotEmpty) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // const Gap(8),
-                    Icon(FontAwesomeIcons.shieldHalved, size: 16, color: Theme.of(context).colorScheme.secondary),
+                    Icon(FontAwesomeIcons.shieldHalved, size: 16, color: theme.colorScheme.secondary),
                     const Gap(4),
                     Text(
-                      secureLabel,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.secondary),
+                      widget.secureLabel,
+                      style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.secondary),
                     ),
                   ],
                 ),
@@ -287,6 +407,68 @@ class _ConnectionButton extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SparkleBurst extends StatelessWidget {
+  const _SparkleBurst({
+    required this.progress,
+    required this.color,
+  });
+
+  final double progress;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    if (progress <= 0 || progress >= 1) return const SizedBox.shrink();
+
+    const particles = 10;
+    final widgets = <Widget>[];
+    for (var i = 0; i < particles; i++) {
+      final angle = (math.pi * 2 / particles) * i + (i.isEven ? 0.18 : -0.12);
+      final distance = 24 + (64 * Curves.easeOutCubic.transform(progress));
+      final dx = math.cos(angle) * distance;
+      final dy = math.sin(angle) * distance;
+      final size = i.isEven ? 10.0 : 6.0;
+      final opacity = (1 - progress).clamp(0.0, 1.0);
+
+      widgets.add(
+        Transform.translate(
+          offset: Offset(dx, dy),
+          child: Opacity(
+            opacity: opacity,
+            child: Container(
+              width: size,
+              height: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white,
+                    color.withValues(alpha: 0.92),
+                    color.withValues(alpha: 0.0),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.46),
+                    blurRadius: 14,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return IgnorePointer(
+      child: Stack(
+        alignment: Alignment.center,
+        children: widgets,
+      ),
     );
   }
 }

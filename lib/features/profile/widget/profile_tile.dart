@@ -33,6 +33,16 @@ class ProfileTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
+    final tileColor = color ??
+        (isMain
+            ? theme.colorScheme.surface.withValues(alpha: 0.22)
+            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.88));
+    final borderColor = isMain
+        ? theme.colorScheme.primary.withValues(alpha: 0.22)
+        : (profile.active ? theme.colorScheme.outline : Colors.transparent);
+    final shadowColor = isMain
+        ? theme.colorScheme.primary.withValues(alpha: 0.12)
+        : Colors.black.withValues(alpha: 0.06);
 
     final selectActiveMutation = useMutation(
       initialOnFailure: (err) {
@@ -60,13 +70,14 @@ class ProfileTile extends HookConsumerWidget {
       // elevation: effectiveElevation,
       margin: margin,
       shape: RoundedRectangleBorder(
-        side: profile.active ? BorderSide(color: theme.colorScheme.outline) : BorderSide.none,
+        side: borderColor == Colors.transparent ? BorderSide.none : BorderSide(color: borderColor),
         borderRadius: ProfileTileConst.cardBorderRadius,
       ),
-      // color: color ?? theme.colorScheme.secondaryContainer,
-      elevation: profile.active ? 0 : 1,
+      color: tileColor,
+      elevation: 0,
+      shadowColor: shadowColor,
+      clipBehavior: Clip.antiAlias,
 
-      // shadowColor: Colors.transparent,
       child: IntrinsicHeight(
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 48),
@@ -100,7 +111,10 @@ class ProfileTile extends HookConsumerWidget {
                             );
                           },
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMain ? 16 : 12,
+                        vertical: isMain ? 10 : 4,
+                      ),
                       child: Column(
                         // mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,13 +122,14 @@ class ProfileTile extends HookConsumerWidget {
                         children: [
                           if (isMain)
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              padding: const EdgeInsets.symmetric(vertical: 2),
                               child: Text(
                                 profile.name,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
+                                  fontWeight: FontWeight.w700,
                                 ),
                                 semanticsLabel: t.pages.profiles.activeProfileName(name: profile.name),
                               ),

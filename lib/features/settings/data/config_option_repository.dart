@@ -365,52 +365,15 @@ abstract class ConfigOptions {
   };
 
   static final singboxConfigOptions = Provider<SingboxConfigOption>((ref) {
-    // final region = ref.watch(Preferences.region);
     final rules = <SingboxRule>[];
-    // final rules = switch (region) {
-    //   Region.ir => [
-    //       const SingboxRule(
-    //         domains: "domain:.ir,geosite:ir",
-    //         ip: "geoip:ir",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.cn => [
-    //       const SingboxRule(
-    //         domains: "domain:.cn,geosite:cn",
-    //         ip: "geoip:cn",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.ru => [
-    //       const SingboxRule(
-    //         domains: "domain:.ru",
-    //         ip: "geoip:ru",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.af => [
-    //       const SingboxRule(
-    //         domains: "domain:.af,geosite:af",
-    //         ip: "geoip:af",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.id => [
-    //       const SingboxRule(
-    //         domains: "domain:.id,geosite:id",
-    //         ip: "geoip:id",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   _ => <SingboxRule>[],
-    // };
 
     final mode = ref.watch(serviceMode);
-    // final reg = ref.watch(Preferences.region.notifier).raw();
 
     return SingboxConfigOption(
-      region: ref.watch(region).name,
+      // UI country selection is currently used as the VPN location picker.
+      // Split tunneling for Russian destinations must stay forced regardless
+      // of the selected exit node, so the core routing region stays pinned to RU.
+      region: Region.ru.name,
       balancerStrategy: ref.watch(balancerStrategy),
       blockAds: ref.watch(blockAds),
       useXrayCoreWhenPossible: ref.watch(useXrayCoreWhenPossible),
@@ -447,41 +410,41 @@ abstract class ConfigOptions {
       //   maxStreams: ref.watch(muxMaxStreams),
       //   protocol: ref.watch(muxProtocol),
       // ),
-      tlsTricks: SingboxTlsTricks(
-        enableFragment: ref.watch(enableTlsFragment),
-        fragmentSize: ref.watch(tlsFragmentSize),
-        fragmentSleep: ref.watch(tlsFragmentSleep),
-        mixedSniCase: ref.watch(enableTlsMixedSniCase),
-        enablePadding: ref.watch(enableTlsPadding),
-        paddingSize: ref.watch(tlsPaddingSize),
+      tlsTricks: const SingboxTlsTricks(
+        enableFragment: false,
+        fragmentSize: OptionalRange(min: 10, max: 30),
+        fragmentSleep: OptionalRange(min: 2, max: 8),
+        mixedSniCase: false,
+        enablePadding: false,
+        paddingSize: OptionalRange(min: 1, max: 1500),
       ),
       warp: SingboxWarpOption(
-        enable: ref.watch(enableWarp),
+        enable: false,
         mode: ref.watch(warpDetourMode),
-        wireguardConfig: ref.watch(warpWireguardConfig),
-        licenseKey: ref.watch(warpLicenseKey),
-        accountId: ref.watch(warpAccountId),
-        accessToken: ref.watch(warpAccessToken),
-        cleanIp: ref.watch(warpCleanIp),
-        cleanPort: ref.watch(warpPort),
-        noise: ref.watch(warpNoise),
-        noiseMode: ref.watch(warpNoiseMode),
-        noiseSize: ref.watch(warpNoiseSize),
-        noiseDelay: ref.watch(warpNoiseDelay),
+        wireguardConfig: "",
+        licenseKey: "",
+        accountId: "",
+        accessToken: "",
+        cleanIp: "auto",
+        cleanPort: 0,
+        noise: const OptionalRange(min: 1, max: 3),
+        noiseMode: "m4",
+        noiseSize: const OptionalRange(min: 10, max: 30),
+        noiseDelay: const OptionalRange(min: 10, max: 30),
       ),
       warp2: SingboxWarpOption(
-        enable: ref.watch(enableWarp),
+        enable: false,
         mode: ref.watch(warpDetourMode),
-        wireguardConfig: ref.watch(warp2WireguardConfig),
-        licenseKey: ref.watch(warp2LicenseKey),
-        accountId: ref.watch(warp2AccountId),
-        accessToken: ref.watch(warp2AccessToken),
-        cleanIp: ref.watch(warpCleanIp),
-        cleanPort: ref.watch(warpPort),
-        noise: ref.watch(warpNoise),
-        noiseMode: ref.watch(warpNoiseMode),
-        noiseSize: ref.watch(warpNoiseSize),
-        noiseDelay: ref.watch(warpNoiseDelay),
+        wireguardConfig: "",
+        licenseKey: "",
+        accountId: "",
+        accessToken: "",
+        cleanIp: "auto",
+        cleanPort: 0,
+        noise: const OptionalRange(min: 1, max: 3),
+        noiseMode: "m4",
+        noiseSize: const OptionalRange(min: 10, max: 30),
+        noiseDelay: const OptionalRange(min: 10, max: 30),
       ),
       rules: rules,
     );

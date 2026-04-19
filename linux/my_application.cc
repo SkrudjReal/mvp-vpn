@@ -1,5 +1,6 @@
 #include "my_application.h"
 
+#include <gtk/gtk.h>
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -55,6 +56,32 @@ static void my_application_activate(GApplication *application)
   if (use_header_bar)
   {
     GtkHeaderBar *header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
+    GtkCssProvider *provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(
+        provider,
+        "headerbar {"
+        "  background-image: linear-gradient(135deg, #081426, #09172b 58%, #030813);"
+        "  background-color: #081426;"
+        "  color: #f5f7ff;"
+        "  border: none;"
+        "  box-shadow: none;"
+        "}"
+        "headerbar title {"
+        "  color: #f5f7ff;"
+        "}"
+        "headerbar button {"
+        "  color: #f5f7ff;"
+        "}"
+        ".titlebutton {"
+        "  color: #f5f7ff;"
+        "}",
+        -1,
+        NULL);
+    gtk_style_context_add_provider_for_screen(
+        gtk_window_get_screen(window),
+        GTK_STYLE_PROVIDER(provider),
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref(provider);
     gtk_widget_show(GTK_WIDGET(header_bar));
     gtk_header_bar_set_title(header_bar, "noda");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);

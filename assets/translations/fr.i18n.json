@@ -639,5 +639,37 @@
       "missingLicense": "Licence WARP manquante",
       "missingLicenseMsg": "Le profil sélectionné utilise la fonctionnalité WARP. Pour utiliser cette fonctionnalité, vous devez accepter la licence WARP."
     }
+  },
+  "noda": {
+    "intro": {
+      "headline": "Secure team access without configuration debt.",
+      "subheadline": "Access is centrally managed and does not require manual setup."
+    },
+    "about": {
+      "summary": "Managed private access with a stripped-down UI and predictable routing defaults."
+    },
+    "settings": {
+      "summary": "Core client controls for the managed noda experience.",
+      "generalSubtitle": "Language, appearance and lightweight client preferences.",
+      "routingSubtitle": "Managed location and direct-routing behavior for Russian traffic.",
+      "aboutSubtitle": "Version, licenses and product information."
+    },
+    "home": {
+      "readyTitle": "Managed location ready for secure access",
+      "connectedTitle": "Protected through ${country}",
+      "connectingTitle": "Securing your session",
+      "disconnectedHint": "Connect through your ${country} exit node.",
+      "connectedHint": "Traffic is flowing through your ${country} exit node.",
+      "connectingHint": "Applying route policies and establishing the tunnel.",
+      "ruDirect": "RU direct",
+      "browseLocations": "Browse locations",
+      "countries": "Countries",
+      "location": "Location",
+      "routing": "Routing",
+      "routingBypassed": "Russian traffic bypassed",
+      "vpnEnabled": "VPN enabled",
+      "vpnDisabled": "VPN disabled",
+      "switchingState": "Switching state"
+    }
   }
 }
