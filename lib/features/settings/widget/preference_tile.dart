@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/noda_theme.dart';
+import 'package:hiddify/utils/platform_utils.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/features/settings/notifier/battery_optimization/battery_optimizations_notifier.dart';
+import 'package:hiddify/features/settings/widget/noda_settings_components.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ValuePreferenceWidget<T> extends HookConsumerWidget {
@@ -33,15 +36,11 @@ class ValuePreferenceWidget<T> extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(presentValue?.call(value) ?? value.toString()),
-      leading: icon != null ? Icon(icon) : null,
-      // material: (context, platform) => MaterialListTileData(
-      enabled: enabled,
-
-      // ),
-      onTap: () async {
+    return SettingsListItem(
+      title: title,
+      value: presentValue?.call(value) ?? value.toString(),
+      icon: icon ?? Icons.settings_rounded,
+      onClick: () async {
         final inputValue = await ref
             .read(dialogNotifierProvider.notifier)
             .showSettingInput(
@@ -90,28 +89,52 @@ class ChoicePreferenceWidget<T> extends HookConsumerWidget {
   final ValueChanged<T>? onChanged;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      title: Text(title),
-      subtitle: Text(presentChoice(selected)),
-      leading: icon != null ? Icon(icon) : null,
-      enabled: enabled,
-      onTap: () async {
-        final selection = await ref
-            .read(dialogNotifierProvider.notifier)
-            .showSettingPicker<T>(
-              title: title,
-              showFlag: showFlag,
-              selected: selected,
-              options: choices,
-              getTitle: (e) => presentChoice(e),
-              onReset: preferences.reset,
-            );
-        if (selection == null) return;
-        final out = await preferences.update(selection);
-        onChanged?.call(selection);
-        return out;
-      },
+    final child = SettingsListItem(
+      title: title,
+      value: presentChoice(selected),
+      icon: icon ?? Icons.settings_rounded,
+      onClick: PlatformUtils.isDesktop
+          ? () {} // handled by PopupMenuButton wrapper
+          : () async {
+              final selection = await ref
+                  .read(dialogNotifierProvider.notifier)
+                  .showSettingPicker<T>(
+                    title: title,
+                    showFlag: showFlag,
+                    selected: selected,
+                    options: choices,
+                    getTitle: (e) => presentChoice(e),
+                    onReset: preferences.reset,
+                  );
+              if (selection == null) return;
+              await preferences.update(selection);
+            },
     );
+
+    if (PlatformUtils.isDesktop) {
+      return NodaDesktopDropdown<T>(
+        value: selected,
+        items: choices,
+        width: 260,
+        yOffset: 68,
+        onSelected: (selection) async {
+          await preferences.update(selection);
+        },
+        itemBuilder: (choice, isSelected, isHovered) {
+          return Text(
+            presentChoice(choice),
+            style: TextStyle(
+              color: context.nodaText,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+              fontSize: 15,
+            ),
+          );
+        },
+        childBuilder: (context, isOpen) => child,
+      );
+    }
+
+    return child;
   }
 }
 

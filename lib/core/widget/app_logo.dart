@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppLogo extends StatelessWidget {
   const AppLogo({
@@ -7,28 +7,34 @@ class AppLogo extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.contain,
-    this.colorFilter,
+    this.color,
   });
-
-  static const _lightLogoPath = 'assets/images/logo.svg';
-  static const _darkLogoPath = 'assets/images/logo white.svg';
 
   final double? width;
   final double? height;
   final BoxFit fit;
-  final ColorFilter? colorFilter;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final brightness = Theme.of(context).brightness;
-    final assetPath = brightness == Brightness.dark ? _darkLogoPath : _lightLogoPath;
-
-    return SvgPicture.asset(
-      assetPath,
+    return SizedBox(
       width: width,
       height: height,
-      fit: fit,
-      colorFilter: colorFilter,
+      child: Center(
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            "noda.",
+            style: GoogleFonts.cookie(
+              fontSize: 60, // large base size, FittedBox will scale it down/up
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1.0,
+              height: 1.0,
+              color: color ?? Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -6,18 +6,15 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
-import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
 import 'package:hiddify/core/widget/noda_chrome.dart';
-import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
+import 'package:hiddify/core/theme/noda_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class MyAdaptiveLayout extends HookConsumerWidget {
-  const MyAdaptiveLayout({
-    super.key,
-    required this.navigationShell,
-    required this.isMobileBreakpoint,
-  });
+  const MyAdaptiveLayout({super.key, required this.navigationShell, required this.isMobileBreakpoint});
 
   final StatefulNavigationShell navigationShell;
   final bool isMobileBreakpoint;
@@ -54,91 +51,74 @@ class MyAdaptiveLayout extends HookConsumerWidget {
           showMap: true,
           child: isMobileBreakpoint
               ? navigationShell
-              : Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: Breakpoint(context).isDesktop() ? 320 : 96,
-                        child: NodaPanel(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          radius: 32,
-                          color: const Color(0xFF0B1629),
-                          child: Stack(
-                            children: [
-                              Positioned(
-                                top: -64,
-                                left: -56,
-                                child: IgnorePointer(
-                                  child: Container(
-                                    width: 180,
-                                    height: 180,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: RadialGradient(
-                                        colors: [
-                                          const Color(0xFF3D9BFF).withValues(alpha: 0.14),
-                                          const Color(0xFF3D9BFF).withValues(alpha: 0.04),
-                                          Colors.transparent,
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
+              : Row(
+                  children: [
+                    Container(
+                      width: 68,
+                      decoration: BoxDecoration(
+                        color: context.nodaSurface,
+                        border: Border(right: BorderSide(color: context.nodaBorder)),
+                      ),
+                      child: SafeArea(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            Text(
+                              'n.',
+                              style: GoogleFonts.cookie(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w900,
+                                fontStyle: FontStyle.italic,
+                                letterSpacing: -1,
+                                color: context.nodaText,
                               ),
-                              Positioned(
-                                bottom: -48,
-                                right: -40,
-                                child: IgnorePointer(
-                                  child: Container(
-                                    width: 156,
-                                    height: 156,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: RadialGradient(
-                                        colors: [
-                                          const Color(0xFF49C6FF).withValues(alpha: 0.08),
-                                          Colors.transparent,
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              FocusScope(
+                            ),
+                            const SizedBox(height: 46),
+                            Expanded(
+                              child: FocusScope(
                                 node: navScopeNode,
-                                child: NavigationRail(
-                                  extended: Breakpoint(context).isDesktop(),
-                                  destinations: _navRailDests(_actions(t, isMobileBreakpoint)),
-                                  selectedIndex: navigationShell.currentIndex,
-                                  onDestinationSelected: (index) => _onTap(context, index),
-                                  trailing: Breakpoint(context).isDesktop()
-                                      ? const Expanded(
-                                          child: Align(
-                                            alignment: Alignment.bottomCenter,
-                                            child: SizedBox(width: 236, child: SideBarStatsOverview()),
+                                child: NavigationRailTheme(
+                                  data: NavigationRailThemeData(
+                                    backgroundColor: Colors.transparent,
+                                    indicatorColor: Colors.transparent,
+                                    selectedIconTheme: IconThemeData(color: context.nodaNeon, size: 18),
+                                    unselectedIconTheme: IconThemeData(color: context.nodaMuted, size: 18),
+                                    labelType: NavigationRailLabelType.none,
+                                  ),
+                                  child: NavigationRail(
+                                    minWidth: 68,
+                                    groupAlignment: -1,
+                                    destinations: _navRailDests(_actions(t, isMobileBreakpoint)),
+                                    selectedIndex: navigationShell.currentIndex,
+                                    onDestinationSelected: (index) => _onTap(context, index),
+                                    leading: const SizedBox.shrink(),
+                                    trailing: Expanded(
+                                      child: Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: Container(
+                                          width: 28,
+                                          height: 28,
+                                          margin: const EdgeInsets.only(bottom: 20),
+                                          decoration: BoxDecoration(
+                                            color: context.nodaSurfaceSoft,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: context.nodaBorder),
                                           ),
-                                        )
-                                      : null,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ).animate().fadeIn(duration: 320.ms).slideX(begin: -.05, end: 0).scaleXY(begin: .985, end: 1),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: NodaPanel(
-                          padding: EdgeInsets.zero,
-                          radius: 32,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(32),
-                            child: navigationShell,
-                          ),
-                        ),
-                      ).animate().fadeIn(duration: 320.ms, delay: 50.ms).slideX(begin: .03, end: 0),
-                    ],
-                  ),
+                      ),
+                    ).animate().fadeIn(duration: 320.ms).slideX(begin: -.05, end: 0).scaleXY(begin: .985, end: 1),
+                    Expanded(
+                      child: navigationShell,
+                    ).animate().fadeIn(duration: 320.ms, delay: 50.ms).slideX(begin: .03, end: 0),
+                  ],
                 ),
         ),
         bottomNavigationBar: isMobileBreakpoint
@@ -146,13 +126,19 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: NodaPanel(
-                    radius: 24,
+                  child: Container(
                     padding: const EdgeInsets.all(4),
-                    color: const Color(0xFF0B1629),
+                    decoration: BoxDecoration(
+                      color: context.nodaSurface.withValues(alpha: .94),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: context.nodaBorder),
+                      boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 20, offset: Offset(0, 10))],
+                    ),
                     child: FocusScope(
                       node: navScopeNode,
                       child: NavigationBar(
+                        backgroundColor: Colors.transparent,
+                        indicatorColor: context.nodaNeon.withValues(alpha: .22),
                         selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
                         destinations: _navDests(_actions(t, isMobileBreakpoint)),
                         onDestinationSelected: (index) => _onTap(context, index),
@@ -179,6 +165,37 @@ class MyAdaptiveLayout extends HookConsumerWidget {
   List<NavigationDestination> _navDests(List<ShellRouteAction> actions) =>
       actions.map((e) => NavigationDestination(icon: Icon(e.icon), label: e.title)).toList();
 
-  List<NavigationRailDestination> _navRailDests(List<ShellRouteAction> actions) =>
-      actions.map((e) => NavigationRailDestination(icon: Icon(e.icon), label: Text(e.title))).toList();
+  List<NavigationRailDestination> _navRailDests(List<ShellRouteAction> actions) => actions
+      .map(
+        (e) => NavigationRailDestination(
+          icon: _RailIcon(icon: e.icon, active: false),
+          selectedIcon: _RailIcon(icon: e.icon, active: true),
+          label: Text(e.title),
+        ),
+      )
+      .toList();
+}
+
+class _RailIcon extends StatelessWidget {
+  const _RailIcon({required this.icon, required this.active});
+
+  final IconData icon;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: 180.ms,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: active ? context.nodaNeon.withValues(alpha: .12) : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        border: active ? Border.all(color: context.nodaNeon.withValues(alpha: .30)) : null,
+        boxShadow: active
+            ? [BoxShadow(color: Colors.black.withValues(alpha: .20), blurRadius: 8, offset: const Offset(0, 4))]
+            : null,
+      ),
+      child: Icon(icon),
+    );
+  }
 }

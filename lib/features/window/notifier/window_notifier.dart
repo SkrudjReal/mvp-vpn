@@ -12,7 +12,7 @@ import 'package:window_manager/window_manager.dart';
 
 part 'window_notifier.g.dart';
 
-const minimumWindowSize = Size(368, 568);
+const minimumWindowSize = Size(460, 660);
 const defaultWindowSize = Size(868, 668);
 
 @Riverpod(keepAlive: true)
