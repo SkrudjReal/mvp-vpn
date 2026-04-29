@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  noda AppStream Metadata
+  Place this file at: linux/packaging/myappid.appdata.xml
+-->
+<component type="desktop-application">
+  <id>app.noda.vpn</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>noda</name>
+  <summary>Modern Proxy and VPN Manager for Linux</summary>
+
+  <developer_name>noda</developer_name>
+  <update_contact>support@noda.local</update_contact>
+
+  <description>
+    <p>
+      noda is an advanced proxy and VPN client built for privacy and control. 
+      It supports multiple backend protocols including V2Ray, Xray, Clash, and Sing-box, 
+      providing flexibility and performance for all kinds of network configurations.
+    </p>
+    <p>
+      Designed with simplicity in mind, noda helps users connect securely and 
+      manage complex proxy configurations through a clean graphical interface.
+    </p>
+  </description>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://noda.local/assets/noda-linux.png</image>
+      <caption>Main Interface of noda</caption>
+    </screenshot>
+  </screenshots>
+
+  <launchable type="desktop-id">noda.desktop</launchable>
+
+  <icon type="stock">noda</icon>
+
+  <categories>
+    <category>Network</category>
+  </categories>
+
+  <keywords>
+    <keyword>noda</keyword>
+    <keyword>Proxy</keyword>
+    <keyword>VPN</keyword>
+    <keyword>V2Ray</keyword>
+    <keyword>Nekoray</keyword>
+    <keyword>Xray</keyword>
+    <keyword>Psiphon</keyword>
+    <keyword>OpenVPN</keyword>
+  </keywords>
+
+  <mime-types>
+    <mime-type>x-scheme-handler/noda</mime-type>
+    <mime-type>x-scheme-handler/hiddify</mime-type>
+    <mime-type>x-scheme-handler/v2ray</mime-type>
+    <mime-type>x-scheme-handler/v2rayn</mime-type>
+    <mime-type>x-scheme-handler/v2rayng</mime-type>
+    <mime-type>x-scheme-handler/clash</mime-type>
+    <mime-type>x-scheme-handler/clashmeta</mime-type>
+    <mime-type>x-scheme-handler/sing-box</mime-type>
+  </mime-types>
+
+  <url type="homepage">https://noda.local</url>
+  <url type="bugtracker">https://noda.local/support</url>
+  <url type="help">https://noda.local/docs</url>
+
+  <provides>
+    <binary>noda</binary>
+  </provides>
+
+  <releases>
+    <release version="1.0.0" date="2025-10-25">
+      <description>
+        <p>Initial Linux release of noda with multi-protocol support and modern UI.</p>
+      </description>
+    </release>
+  </releases>
+
+  <translation type="gettext">noda</translation>
+
+  <custom>
+    <value key="PackageName">noda</value>
+    <value key="Priority">optional</value>
+    <value key="Section">x11</value>
+    <value key="InstalledSize">6604</value>
+    <value key="Essential">false</value>
+  </custom>
+</component>

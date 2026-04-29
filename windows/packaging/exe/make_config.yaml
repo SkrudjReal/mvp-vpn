@@ -1,0 +1,16 @@
+app_id: 9F75C1F3-2F26-4D5B-A9E4-1C7B0B12E71A
+publisher: noda
+publisher_url: https://noda.local
+display_name: noda
+create_desktop_icon: true
+install_dir_name: "{autopf64}\\noda"
+setup_icon_file: windows\runner\resources\app_icon.ico
+locales:
+  - ar
+  - en
+  - es
+  - fr
+  - pt
+  - ru
+  - tr
+script_template: inno_setup.sas
