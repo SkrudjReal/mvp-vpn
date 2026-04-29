@@ -35,6 +35,23 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/out/
+/release/
+/releases/
+
+# Local distributable packages. Publish these through GitHub Releases,
+# not through git history.
+*.AppImage
+*.deb
+*.rpm
+*.msix
+*.pkg
+*.dmg
+*.ipa
+*.apk
+*.aab
+*Setup*.exe
+*Portable*.zip
 
 # generated files
 **/*.g.dart
@@ -46,6 +63,15 @@ migrate_working_dir/
 **/*.xcframework
 /dist/
 /dist_docker/
+
+# Downloaded/compiled core binaries.
+/hiddify-core/hiddify-core-linux-amd64/hiddify-core
+/hiddify-core/bin/HiddifyCli
+/hiddify-core/bin/HiddifyCli.exe
+/hiddify-core/bin/lib/*
+!/hiddify-core/bin/lib/.gitkeep
+/hiddify-core/lib/*.so
+/hiddify-core/lib/*.dll
 
 /assets/core/*
 !/assets/core/.gitkeep
