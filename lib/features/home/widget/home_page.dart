@@ -22,6 +22,7 @@ import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/widget/noda_settings_components.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -134,11 +135,15 @@ class HomePage extends HookConsumerWidget {
 
     switch (status) {
       case AsyncData(value: Connected()) when requiresReconnect == true:
+        await _ensureDesktopSystemProxy(ref);
         final activeProfile = await ref.read(activeProfileProvider.future);
         return await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
       case AsyncData(value: Disconnected()) || AsyncError():
+        await _ensureDesktopSystemProxy(ref);
         if (ref.read(activeProfileProvider).valueOrNull == null) {
           await ref.read(addProfileNotifierProvider.notifier).addClipboard(_helsinkiVlessLink);
+          final hasActiveProfile = await _waitForActiveProfile(ref);
+          if (!hasActiveProfile) return;
           return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
         }
         if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
@@ -147,6 +152,7 @@ class HomePage extends HookConsumerWidget {
       case AsyncData(value: Connected()):
         if (requiresReconnect == true &&
             await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
+          await _ensureDesktopSystemProxy(ref);
           return await ref
               .read(connectionNotifierProvider.notifier)
               .reconnect(await ref.read(activeProfileProvider.future));
@@ -155,6 +161,27 @@ class HomePage extends HookConsumerWidget {
       default:
         return;
     }
+  }
+
+  Future<void> _ensureDesktopSystemProxy(WidgetRef ref) async {
+    if (!PlatformUtils.isDesktop) return;
+    if (ref.read(ConfigOptions.serviceMode) == ServiceMode.systemProxy) return;
+    await ref.read(ConfigOptions.serviceMode.notifier).update(ServiceMode.systemProxy);
+  }
+
+  Future<bool> _waitForActiveProfile(WidgetRef ref) async {
+    for (var attempt = 0; attempt < 12; attempt++) {
+      if (ref.read(activeProfileProvider).valueOrNull != null) return true;
+
+      ref.invalidate(activeProfileProvider);
+      final activeProfile = await ref
+          .read(activeProfileProvider.future)
+          .timeout(const Duration(milliseconds: 180), onTimeout: () => null);
+      if (activeProfile != null) return true;
+
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+    }
+    return false;
   }
 }
 
