@@ -1,4 +1,3 @@
-import { Shield } from 'lucide-react';
 import { StatusBar } from './StatusBar';
 
 type HeroPanelProps = {
@@ -33,7 +32,7 @@ export function HeroPanel({ eyebrow, titleTop, titleAccent, description }: HeroP
 function Logo() {
   return (
     <div className="logo" aria-label="noda">
-      <span className="logo-mark"><Shield size={17} /></span>
+      <span className="logo-mark"><img src="/icon.png" alt="" /></span>
       <span className="logo-text">noda.</span>
     </div>
   );

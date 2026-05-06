@@ -18,7 +18,6 @@ import {
   Moon,
   RefreshCw,
   Send,
-  Shield,
   ShieldCheck,
   Sparkles,
   Sun,
@@ -230,7 +229,7 @@ export default function App() {
     <main className="app-shell">
       <CosmicBackground />
       <div className="page-actions">
-        <a className="support-link" href="https://t.me/Kotsupport" target="_blank" rel="noreferrer">
+        <a className="support-link" href="https://t.me/" target="_blank" rel="noreferrer">
           Поддержка
         </a>
         <button
@@ -475,7 +474,7 @@ function DashboardShell({
       <CosmicBackground />
       <header className="dash-header">
         <button className="dash-logo" type="button" onClick={() => onPage('home')}>
-          <span><Shield size={20} /></span>
+          <span><img src="/icon.png" alt="" /></span>
           <b>noda.</b>
         </button>
 
@@ -565,15 +564,15 @@ function HomePage({ data, onPage, onCreateInvoice }: { data: DashboardData; onPa
       </section>
 
       <section className="tile-grid">
-        <a className="dash-tile" href="https://t.me/Kotsupport" target="_blank" rel="noreferrer">
+        <a className="dash-tile" href="https://t.me/" target="_blank" rel="noreferrer">
           <WalletCards size={20} />
           <h3>Поддержка</h3>
-          <p>@Kotsupport</p>
+          <p>Telegram</p>
         </a>
-        <a className="dash-tile" href="https://t.me/nodavpn" target="_blank" rel="noreferrer">
+        <a className="dash-tile" href="https://t.me/" target="_blank" rel="noreferrer">
           <Megaphone size={20} />
           <h3>Канал Noda</h3>
-          <p>Новости и статусы сети</p>
+          <p>Telegram</p>
         </a>
       </section>
     </div>

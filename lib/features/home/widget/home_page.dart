@@ -27,7 +27,7 @@ import 'package:hiddify/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 const _helsinkiVlessLink =
-    'vless://b22b8cce-b18d-4f3e-941c-d95649efd0d0@95.216.193.189:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&fp=chrome&pbk=SPqnkIcxVhBBAZDeHO2esgU_sz74Oqpp4NGyCcN51hE&sid=93fefb115d67d341&type=tcp&headerType=none#noda-reality';
+    'vless://b22b8cce-b18d-4f3e-941c-d95649efd0d0@95.216.193.189:8443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.microsoft.com&fp=chrome&pbk=SPqnkIcxVhBBAZDeHO2esgU_sz74Oqpp4NGyCcN51hE&sid=93fefb115d67d341&type=tcp&headerType=none#noda-reality';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
