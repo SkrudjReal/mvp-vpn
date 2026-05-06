@@ -10,8 +10,9 @@ mkdir -p "$DEST"
 
 should_skip() {
   case "$1" in
-    ./.git/*|./.dart_tool/*|./build/*|./hiddify-core/*|./.idea/*|./.sentry-native/*) return 0 ;;
-    ./.git|./.dart_tool|./build|./hiddify-core|./.idea|./.sentry-native) return 0 ;;
+    *.tsbuildinfo) return 0 ;;
+    ./.git/*|./.dart_tool/*|./build/*|./dist/*|./hiddify-core/*|./.idea/*|./.sentry-native/*|./noda-web/data/*|*/node_modules/*|*/dist/*) return 0 ;;
+    ./.git|./.dart_tool|./build|./dist|./hiddify-core|./.idea|./.sentry-native|./noda-web/data|*/node_modules|*/dist) return 0 ;;
   esac
   return 1
 }
@@ -34,7 +35,7 @@ while IFS= read -r -d '' src; do
   copied=$((copied + 1))
 done < <(
   find . \
-    \( -path './.git' -o -path './.dart_tool' -o -path './build' -o -path './hiddify-core' -o -path './.idea' -o -path './.sentry-native' \) -prune \
+    \( -path './.git' -o -path './.dart_tool' -o -path './build' -o -path './dist' -o -path './hiddify-core' -o -path './.idea' -o -path './.sentry-native' -o -path './noda-web/data' -o -path '*/node_modules' -o -path '*/dist' \) -prune \
     -o -type f -print0
 )
 

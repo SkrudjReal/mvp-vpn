@@ -38,6 +38,10 @@ migrate_working_dir/
 /out/
 /release/
 /releases/
+**/node_modules/
+**/dist/
+**/*.tsbuildinfo
+noda-web/data/
 
 # Local distributable packages. Publish these through GitHub Releases,
 # not through git history.
